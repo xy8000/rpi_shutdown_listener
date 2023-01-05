@@ -8,5 +8,5 @@ Source-Code can be found in the file "script".
 
 Information: You may need special privileges to run the underlaying `shutdown` command.
 ```
-@reboot ./[some_path]/rpi_shutdown_listener/script
+@reboot . /[some_path]/rpi_shutdown_listener/script
 ```
