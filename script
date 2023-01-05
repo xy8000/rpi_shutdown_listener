@@ -1,0 +1,55 @@
+#!/bin/bash
+gpio=17
+gpio_value=0
+
+read_gpio () {
+  gpio_value=$(gpio -g read $gpio)
+}
+
+echo "Starte shutdown-listener. GPIO=$gpio"
+while :
+do
+ while [ $gpio_value -eq 0 ]
+ do
+  read_gpio
+  sleep 0.5
+ done
+ echo "Shutdown-Knopf betätigt"
+ # Muss 2 Sekunden gehalten werden, damit das System neugestartet wird
+ released=0
+ for i in {1..20} ; do
+  read_gpio
+  if [ $gpio_value -eq 0 ]
+  then
+   released=1
+  fi
+  sleep 0.1
+ done
+
+ # Muss 5 Sekunden gehalten werden, damit das System heruntergefahren wird
+ released_2=0
+ for i in {1..30} ; do
+  read_gpio
+  if [ $gpio_value -eq 0 ]
+  then
+   released_2=1
+  fi
+  sleep 0.1
+ done
+
+ if [ $released -eq 0 ] && [ $released_2 -eq 0 ]
+ then
+  echo "Fahre System herunter"
+  shutdown -h +0
+ fi
+
+ if [ $released -eq 0 ] && [ $released_2 -gt 0 ]
+ then
+  echo "Starte system neu"
+  shutdown -r +0
+ fi
+ sleep 1
+done
+
+
+
